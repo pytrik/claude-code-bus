@@ -35,7 +35,10 @@ def invocation_hint() -> str:
     """The command a session should copy to run the bus."""
     entry = Path(__file__).resolve().parents[2] / "ccbus.py"
     if entry.is_file():
-        return f"python {entry.as_posix()}"
+        path = entry.as_posix()
+        if " " in path:
+            path = f'"{path}"'
+        return f"python {path}"
     return "python -m ccbus"
 
 

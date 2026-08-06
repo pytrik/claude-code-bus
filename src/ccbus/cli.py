@@ -112,7 +112,10 @@ def _wait_loop(bus: Bus, args, topics: list[str] | None, pid: int) -> int:
         current = bus.conn.execute("PRAGMA data_version").fetchone()[0]
         if current != data_version:
             data_version = current
-            msgs = bus.deliver(args.me, topics, pid=pid)
+            # Read-only check first: a wake with nothing for us must not
+            # take the write lock just to find that out.
+            msgs = (bus.deliver(args.me, topics, pid=pid)
+                    if bus.pending(args.me, topics) else [])
             if msgs:
                 print(_render(msgs, args.json))
                 if not args.json and (note := _starvation_note(bus, args.me, topics)):

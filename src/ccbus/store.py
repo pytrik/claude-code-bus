@@ -324,7 +324,7 @@ class Bus:
 
     def pending(self, reader: str, topics: list[str] | None = None) -> list[Msg]:
         """Undelivered messages for ``reader``; does not mark anything."""
-        reader = norm_name(reader)
+        reader = require_name(reader)
         topics = [norm_topic(t) for t in topics] if topics else None
         sql, extra = self._pending_sql(topics)
         rows = self.conn.execute(sql, [reader, reader, reader] + extra)
@@ -527,7 +527,8 @@ class Bus:
             cur = self.conn.execute(
                 "UPDATE watchers SET heartbeat = ? WHERE reader = ? AND pid = ?",
                 (time.time(), reader, pid))
-        return cur.rowcount > 0
+            updated = cur.rowcount > 0
+        return updated
 
     def watcher_unregister(self, reader: str, pid: int) -> None:
         with self._txn():
