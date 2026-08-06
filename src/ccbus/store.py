@@ -206,9 +206,9 @@ class Bus:
                                isolation_level=None)  # explicit transactions
         conn.row_factory = sqlite3.Row
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA synchronous=NORMAL")
-            conn.execute("PRAGMA foreign_keys=ON")
+            # Ownership checks first: everything up to the WAL switch is
+            # read-only, so a file that turns out not to be ours is returned
+            # byte-identical.
             version = conn.execute("PRAGMA user_version").fetchone()[0]
             if version == 0:
                 existing = {r[0] for r in conn.execute(
@@ -221,12 +221,19 @@ class Bus:
                         f"(tables: {', '.join(sorted(existing))}). Refusing "
                         f"to write to it. Point CCBUS_DIR elsewhere or move "
                         f"the file.")
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA foreign_keys=ON")
                 conn.executescript(_SCHEMA)
             elif version > SCHEMA_VERSION:
                 raise StoreError(
                     f"{self.db_path} has schema version {version}; this tool "
                     f"understands up to {SCHEMA_VERSION}. Upgrade the tool "
                     f"instead of downgrading the bus.")
+            else:
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA foreign_keys=ON")
         except sqlite3.DatabaseError as e:
             conn.close()
             raise StoreError(
