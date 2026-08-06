@@ -39,7 +39,7 @@ OFFER_TTL_SECONDS = 3600
 WATCHER_STALE_INTERVALS = 3
 WATCHER_STALE_FLOOR_SECONDS = 10.0
 
-_SCHEMA = f"""
+_SCHEMA = """
 CREATE TABLE messages (
     seq         INTEGER PRIMARY KEY AUTOINCREMENT,
     ts          TEXT NOT NULL,
@@ -87,8 +87,6 @@ CREATE TABLE guard_stamps (
     name       TEXT NOT NULL,
     state      TEXT NOT NULL
 );
-
-PRAGMA user_version = {SCHEMA_VERSION};
 """
 
 _OUR_TABLES = {"messages", "deliveries", "watchers", "offers", "bindings",
@@ -206,14 +204,17 @@ class Bus:
                                isolation_level=None)  # explicit transactions
         conn.row_factory = sqlite3.Row
         try:
-            # Ownership checks first: everything up to the WAL switch is
-            # read-only, so a file that turns out not to be ours is returned
-            # byte-identical.
+            # Ownership checks first: everything before schema creation and
+            # the WAL switch is read-only, so a file that turns out not to
+            # be ours is returned byte-identical.
             version = conn.execute("PRAGMA user_version").fetchone()[0]
             if version == 0:
                 existing = {r[0] for r in conn.execute(
                     "SELECT name FROM sqlite_master WHERE type='table'")}
-                if existing - {"sqlite_sequence"}:
+                # Our own tables may already exist here: a concurrent first
+                # open can complete initialisation between our version read
+                # and this check.
+                if existing - {"sqlite_sequence"} - _OUR_TABLES:
                     # A populated database that is not ours. Adding our tables
                     # to it would entangle two applications in one file.
                     raise StoreError(
@@ -221,19 +222,15 @@ class Bus:
                         f"(tables: {', '.join(sorted(existing))}). Refusing "
                         f"to write to it. Point CCBUS_DIR elsewhere or move "
                         f"the file.")
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
-                conn.execute("PRAGMA foreign_keys=ON")
-                conn.executescript(_SCHEMA)
+                self._init_schema(conn)
             elif version > SCHEMA_VERSION:
                 raise StoreError(
                     f"{self.db_path} has schema version {version}; this tool "
                     f"understands up to {SCHEMA_VERSION}. Upgrade the tool "
                     f"instead of downgrading the bus.")
-            else:
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
-                conn.execute("PRAGMA foreign_keys=ON")
+            self._enable_wal(conn)
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA foreign_keys=ON")
         except sqlite3.DatabaseError as e:
             conn.close()
             raise StoreError(
@@ -244,6 +241,49 @@ class Bus:
             conn.close()
             raise
         return conn
+
+    @staticmethod
+    def _init_schema(conn: sqlite3.Connection) -> None:
+        """Create the schema exactly once, even with concurrent first opens.
+
+        The immediate transaction serializes initialisers; whoever loses the
+        race re-reads the version inside the lock and finds the work done.
+        ``executescript`` is unusable here because it commits the open
+        transaction first, which is precisely the lock this needs.
+        """
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            if conn.execute("PRAGMA user_version").fetchone()[0] == 0:
+                for statement in _SCHEMA.split(";"):
+                    if statement.strip():
+                        conn.execute(statement)
+                conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+            conn.execute("COMMIT")
+        except BaseException:
+            conn.execute("ROLLBACK")
+            raise
+
+    @staticmethod
+    def _enable_wal(conn: sqlite3.Connection) -> None:
+        """Switch to WAL, tolerating contention on the one-time transition.
+
+        The switch needs a moment of exclusivity and SQLite reports
+        contention as an immediate 'database is locked' rather than waiting
+        out the busy timeout. Once any connection has switched, the mode is
+        persistent and this becomes a read. If the switch cannot be won,
+        rollback-journal mode is still correct -- just slower under
+        contention -- so this gives up quietly rather than failing an
+        otherwise healthy open.
+        """
+        deadline = time.time() + 5
+        while True:
+            try:
+                conn.execute("PRAGMA journal_mode=WAL")
+                return
+            except sqlite3.OperationalError:
+                if time.time() >= deadline:
+                    return
+                time.sleep(0.05)
 
     def _txn(self):
         """Immediate transaction: acquires the write lock up front so
