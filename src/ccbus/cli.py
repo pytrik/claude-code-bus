@@ -208,9 +208,14 @@ def cmd_trace(bus: Bus, args) -> int:
 
 def cmd_claim(bus: Bus, args) -> int:
     stored = bus.offer(args.dir or os.getcwd(), args.me)
+    # The stored form is normalized (resolved, case-folded) for matching;
+    # echoing it raw looks like a mangled path to anyone who just read the
+    # backslash warning, so say what happened to it.
     print(f"{args.me} claimed for the next session stopping in {stored} "
-          f"(bus {bus.root}). The offer binds when that session next ends a "
-          f"turn; it expires in an hour if nothing does.")
+          f"(path normalized for matching; bus {bus.root}).\n"
+          f"The offer binds when that session next ends a turn and expires "
+          f"in an hour if none does. `doctor` shows it as an offer now and "
+          f"as a binding once bound.")
     return EXIT_OK
 
 

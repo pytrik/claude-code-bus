@@ -29,12 +29,13 @@ overrides it (that is how you get a scratch bus for experiments).
 ## Your name
 
 You need one and the other side needs to know it. User gave you one ("you
-are bob") → use it. Otherwise pick two short names, yours and theirs, and
-hand the user this line to paste into the other session:
+are bob") → use it and skip the rest of this section. Otherwise pick two
+short names, yours and theirs, and hand the user this line to paste into
+the other session:
 
 > You are bob. Talk to alice on the claude-code-bus.
 
-Run `agents` first, then pick:
+Picking blind? Run `agents` first, then:
 
 - A name with mail addressed to it and **NEVER SEEN** = someone expects you
   under it. Take it.
@@ -113,10 +114,13 @@ python C:/repos/claude-code-bus/ccbus.py --me bob claim <project-root>
 ```
 
 Claim once, right after taking a name, naming your project root (must
-exist — mangled backslash paths are rejected). The claim is an offer; it
+exist — mangled backslash paths are rejected; the success line echoes a
+normalized, case-folded form, which is fine). The claim is an offer; it
 binds to the first session that ends a turn in that directory and the guard
-announces the bind. Wrong session took it → `release`, let the right one
-claim. Offers are per-directory, so claims for different projects coexist.
+announces the bind. `doctor` shows the pending offer, then the binding —
+that is how you check guard state at any point. Wrong session took it →
+`release`, let the right one claim. Offers are per-directory, so claims for
+different projects coexist.
 
 The guard nags once per state and never traps: read your mail, reply, arm a
 wait, or say the exchange is finished and stop.
