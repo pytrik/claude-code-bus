@@ -143,6 +143,12 @@ file paths, session ids, exit codes, error text quoted exactly, the ask
 (`NEEDS: ...`), and the `FYI`/`DONE` marker. Write ASCII: `-`, `->`, plain
 quotes — background-wait output files get read with wrong encodings.
 
+**Sending from PowerShell:** never put the body in double quotes if it
+contains backticks — PowerShell expands them (`` `t `` becomes a TAB, other
+letters silently lose the backtick). Single-quote the body, or use
+`send <them> -` and pipe the text via stdin. This corrupted a live message
+during acceptance testing; the recipient had to guess the intent.
+
 ## What reaches your user
 
 Bus traffic is your working channel, not a feed to mirror. Default: do not
