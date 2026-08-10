@@ -108,6 +108,21 @@ def test_agents_render(run):
     assert "NEVER SEEN" in lines["ghost"]
     assert "no reads yet (alive, has sent)" in lines["alice"]
     assert "last read" in lines["bob"]
+    assert "(just now)" in lines["bob"]  # staleness must be visible
+
+
+def test_agents_shows_staleness(run, root):
+    """A read timestamp hours old must say so: a bootstrapping session
+    cannot otherwise tell a dead session from an idle one."""
+    b = Bus(root)
+    b.send("alice", "bob", None, "x")
+    b.deliver("bob")
+    b.conn.execute("UPDATE deliveries SET delivered_at = "
+                   "'2026-08-01T00:00:00+00:00'")
+    b.close()
+    code, out, _ = run("agents")
+    bob_line = next(l for l in out.splitlines() if l.startswith("bob"))
+    assert "d ago" in bob_line
 
 
 def test_topics_render(run):

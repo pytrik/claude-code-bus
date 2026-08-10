@@ -38,13 +38,18 @@ the other session:
 
 > You are bob. Talk to alice on the claude-code-bus.
 
-Picking blind? Run `agents` first, then:
+Picking blind? Run `agents` **and** `log --limit 20` first — neither needs
+a name, and recent broadcasts often carry bootstrap instructions you would
+otherwise only see after committing to a name. Then:
 
 - A name with mail addressed to it and **NEVER SEEN** = someone expects you
   under it. Take it.
-- A name with a **read timestamp** or **[watching]** = a live session owns
-  it. Never take it — a second `wait` under it will be refused, and a
-  second `recv` races the owner for each message.
+- A name with **[watching]** or a read timestamp seconds-to-minutes old = a
+  live session owns it. Never take it — a second `wait` under it will be
+  refused, and a second `recv` races the owner for each message.
+- A read timestamp hours old with no **[watching]** proves a session
+  existed, not that it still does (the age is printed). When in doubt a
+  fresh name is always safe.
 - Genuinely a third party? Take a **new** name and say so in your first
   message.
 

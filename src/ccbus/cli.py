@@ -9,6 +9,7 @@ import json
 import os
 import sys
 import time
+from datetime import datetime, timezone
 
 from ccbus.store import Bus, Msg, StoreError, UserError, WatcherConflict
 
@@ -20,6 +21,24 @@ EXIT_STORE = 3
 
 def _topic_label(topic: str) -> str:
     return topic if topic else "(none)"
+
+
+def _ago(iso: str) -> str:
+    """Relative age of an ISO timestamp, e.g. '2h ago'.
+
+    A bare timestamp cannot answer "is anyone home": a session that read two
+    hours ago and one that read two seconds ago render almost identically,
+    and a bootstrapping session picking a name needs the difference.
+    """
+    try:
+        then = datetime.fromisoformat(iso)
+    except ValueError:
+        return ""
+    seconds = (datetime.now(timezone.utc) - then).total_seconds()
+    for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
+        if seconds >= size:
+            return f"{seconds / size:.0f}{unit} ago"
+    return "just now"
 
 
 def _render(msgs: list[Msg], as_json: bool) -> str:
@@ -152,7 +171,7 @@ def cmd_agents(bus: Bus, args) -> int:
         return EXIT_OK
     for a in agents:
         if a["last_read"]:
-            status = f"last read {a['last_read']}"
+            status = f"last read {a['last_read']} ({_ago(a['last_read'])})"
         elif a["has_sent"]:
             # A first responder on a fresh exchange has sent but not yet
             # read; that is normal, not absence.
