@@ -1,0 +1,14 @@
+{
+  "name": "pytrik",
+  "description": "Pytrik's Claude Code plugins.",
+  "owner": {
+    "name": "Pytrik"
+  },
+  "plugins": [
+    {
+      "name": "claude-code-bus",
+      "source": "./",
+      "description": "Async message bus between Claude Code sessions on one machine."
+    }
+  ]
+}

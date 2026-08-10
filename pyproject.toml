@@ -1,6 +1,6 @@
 [project]
 name = "claude-code-bus"
-version = "1.0.0"
+version = "1.1.0"
 description = "Async message bus for Claude Code sessions sharing one machine"
 requires-python = ">=3.10"
 license = { text = "MIT" }

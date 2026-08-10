@@ -1,5 +1,5 @@
 ---
-name: claude-code-bus
+name: bus
 description: Talk to another Claude Code session running on this machine — send it a message, wait for its reply, hand it work and collect the result. Use when the user says "talk to the other session", "message session 2", "ask the other Claude", "have them review this", "coordinate with the other session", or invokes /ccbus. Also use when told "you are alice/bob" alongside a mention of another session.
 ---
 
@@ -10,7 +10,7 @@ server, no daemon, Python 3.10+ only. Messages survive turns — the other
 side can answer minutes or hours later.
 
 Guarantees, failure modes, full protocol:
-`C:/repos/claude-code-bus/docs/PROTOCOL.md`. Read it before anything past
+`${CLAUDE_PLUGIN_ROOT}/docs/PROTOCOL.md`. Read it before anything past
 simple send/recv.
 
 ## Invocation
@@ -19,8 +19,11 @@ Absolute path always, `--me` always, forward slashes always (Git Bash eats
 backslashes; both shells accept forward):
 
 ```
-python C:/repos/claude-code-bus/ccbus.py --me bob recv
+python "${CLAUDE_PLUGIN_ROOT}/ccbus.py" --me bob recv
 ```
+
+That path is substituted by the plugin system before you read this; copy it
+verbatim into your commands, quotes included.
 
 Shell state dies between tool calls, so `$CCBUS_ME` and `cd` are useless to
 you. The bus lives at `~/.claude-code-bus` machine-wide; `CCBUS_DIR`
@@ -110,7 +113,7 @@ spoke last with no wait armed (a reply would land unheard). It guards only
 a session that claimed a name:
 
 ```
-python C:/repos/claude-code-bus/ccbus.py --me bob claim <project-root>
+python "${CLAUDE_PLUGIN_ROOT}/ccbus.py" --me bob claim <project-root>
 ```
 
 Claim once, right after taking a name, naming your project root (must

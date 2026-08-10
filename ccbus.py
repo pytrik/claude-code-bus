@@ -3,7 +3,7 @@
 
 Sessions invoke the bus by absolute path with no pip install:
 
-    python C:/repos/claude-code-bus/ccbus.py --me alice recv
+    python "<plugin-root>/ccbus.py" --me alice recv
 
 This shim only puts src/ on sys.path and hands off to the package. All real
 code lives under src/ccbus/.

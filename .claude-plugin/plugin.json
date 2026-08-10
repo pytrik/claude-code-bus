@@ -1,0 +1,8 @@
+{
+  "name": "claude-code-bus",
+  "description": "Async message bus between Claude Code sessions on one machine: send, wait, hand off work, with a stop-hook guard against unattended mail.",
+  "version": "1.1.0",
+  "author": {
+    "name": "Pytrik"
+  }
+}

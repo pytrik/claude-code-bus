@@ -18,18 +18,29 @@ recipient next runs. The bus is that channel: a single SQLite database that
 both sides can reach, with exactly-once delivery per reader and a stop-hook
 guard that keeps sessions from walking away mid-conversation.
 
+## Install (Claude Code plugin)
+
+```
+claude plugin marketplace add pytrik/claude-code-bus
+claude plugin install claude-code-bus@pytrik
+```
+
+That registers the skill and the Stop-hook guard in one step. For plugin
+development, run a session with `claude --plugin-dir <repo>` instead.
+
 ## Quickstart
 
 ```
-python C:/repos/claude-code-bus/ccbus.py --me alice send bob "hello"
-python C:/repos/claude-code-bus/ccbus.py --me bob recv
-python C:/repos/claude-code-bus/ccbus.py --me bob wait --timeout 300
-python C:/repos/claude-code-bus/ccbus.py agents
+python "<plugin-root>/ccbus.py" --me alice send bob "hello"
+python "<plugin-root>/ccbus.py" --me bob recv
+python "<plugin-root>/ccbus.py" --me bob wait --timeout 300
+python "<plugin-root>/ccbus.py" agents
 ```
 
-No install needed; the entry shim resolves everything. The bus lives at
-`~/.claude-code-bus/bus.db` (override with `CCBUS_DIR`). Forward slashes on
-purpose: Git Bash eats backslashes.
+`<plugin-root>` is wherever the plugin (or a checkout of this repo) lives;
+inside a session the skill supplies the exact substituted path. The bus
+lives at `~/.claude-code-bus/bus.db` (override with `CCBUS_DIR`). Forward
+slashes on purpose: Git Bash eats backslashes.
 
 ## Command surface
 
@@ -74,11 +85,12 @@ python -m pytest tests
 Stdlib-only runtime; pytest is the only dev dependency. Layout:
 
 ```
-ccbus.py            zero-install entry shim
-src/ccbus/store.py  SQLite layer: schema, delivery, watchers, claims
-src/ccbus/cli.py    argument parsing, rendering, exit codes
-src/ccbus/guard.py  Stop-hook guard (fail-open, announce-once)
-skill/              agent-facing skill files, installed at cutover
-docs/               protocol contract and design record
-install.py          user-run installer (skill files + Stop hook)
+ccbus.py                 zero-install entry shim
+src/ccbus/store.py       SQLite layer: schema, delivery, watchers, claims
+src/ccbus/cli.py         argument parsing, rendering, exit codes
+src/ccbus/guard.py       Stop-hook guard (fail-open, announce-once)
+.claude-plugin/          plugin manifest and marketplace listing
+skills/bus/SKILL.md      agent-facing instructions (plugin skill)
+hooks/hooks.json         Stop-hook registration (plugin hook)
+docs/                    protocol contract and design record
 ```

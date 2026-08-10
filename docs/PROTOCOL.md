@@ -10,13 +10,15 @@ Pick a name and keep it for the whole session. The canonical invocation
 names you with `--me` and reaches the entry shim by absolute path:
 
 ```
-python C:/repos/claude-code-bus/ccbus.py --me bob recv
+python "<plugin-root>/ccbus.py" --me bob recv
 ```
 
-Forward slashes, deliberately: Git Bash eats backslashes and turns the path
-into garbage that resolves somewhere arbitrary. Claude Code sessions must
-use this form — each tool call is a fresh process, so exported variables and
-working directories do not survive to the next command.
+`<plugin-root>` is the plugin's install directory (or any checkout of this
+repo); the skill hands sessions the exact substituted path. Forward
+slashes, deliberately: Git Bash eats backslashes and turns the path into
+garbage that resolves somewhere arbitrary. Claude Code sessions must use
+the absolute-path form — each tool call is a fresh process, so exported
+variables and working directories do not survive to the next command.
 
 Names are trimmed and case-insensitive (`Bob` and `bob` are one mailbox) and
 limited to lowercase letters, digits, `.`, `_`, `-`. The bus lives at
@@ -24,7 +26,7 @@ limited to lowercase letters, digits, `.`, `_`, `-`. The bus lives at
 get a scratch bus for experiments:
 
 ```powershell
-$env:CCBUS_DIR = "$env:TEMP\bustest"; python C:/repos/claude-code-bus/ccbus.py --me bob send alice "probe"
+$env:CCBUS_DIR = "$env:TEMP\bustest"; python "<plugin-root>/ccbus.py" --me bob send alice "probe"
 ```
 
 ## Delivery guarantees
@@ -115,7 +117,7 @@ the whole picture (a session cannot learn its own id; the hook gets an id
 and a directory but no name):
 
 ```
-python C:/repos/claude-code-bus/ccbus.py --me bob claim <project-root>
+python "<plugin-root>/ccbus.py" --me bob claim <project-root>
 ```
 
 `claim` records an *offer* for that directory; the offer binds to the first
