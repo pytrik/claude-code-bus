@@ -9,6 +9,11 @@
       "name": "claude-code-bus",
       "source": "./",
       "description": "Async message bus between Claude Code sessions on one machine."
+    },
+    {
+      "name": "local-resources",
+      "source": "./plugins/local-resources",
+      "description": "Announce machine-wide resource claims over the bus before taking them. Optional companion to claude-code-bus."
     }
   ]
 }

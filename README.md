@@ -35,6 +35,12 @@ claude plugin install claude-code-bus@pytrik
 That registers the skill and the Stop-hook guard in one step. For plugin
 development, run a session with `claude --plugin-dir <repo>` instead.
 
+The marketplace also carries an optional companion plugin,
+`local-resources@pytrik` (`plugins/local-resources/`): a protocol for
+announcing machine-wide resource claims — Docker, fixed ports, shared
+services — over the bus before taking them. Install it the same way if your
+sessions share that kind of infrastructure.
+
 ## Quickstart
 
 ```

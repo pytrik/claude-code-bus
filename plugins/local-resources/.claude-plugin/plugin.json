@@ -1,0 +1,8 @@
+{
+  "name": "local-resources",
+  "description": "Announce machine-wide resource claims (Docker, ports, shared services) over the claude-code-bus before taking them. Companion plugin to claude-code-bus.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pytrik"
+  }
+}
