@@ -71,10 +71,16 @@ def test_expired_offer_does_not_bind(bus, tmp_path):
 
 
 def test_binding_matches_normalised_paths(bus, tmp_path):
-    """Trailing separators and case differences must not stop a bind; in the
-    prototype 'never binds' was indistinguishable from 'unclaimed'."""
+    """A differently-spelled cwd must not stop a bind; in the prototype
+    'never binds' was indistinguishable from 'unclaimed'. Case differences
+    only count on Windows -- on a case-sensitive filesystem they are simply
+    different directories -- but trailing separators are sloppy everywhere."""
+    import os
     bus.offer(str(tmp_path), "bob")
-    sloppy = str(tmp_path).upper() + "\\"
+    if os.name == "nt":
+        sloppy = str(tmp_path).upper() + "\\"
+    else:
+        sloppy = str(tmp_path) + "/"
     out = run_guard(payload(cwd=sloppy), bus.root)
     assert decision(out)["decision"] == "block"
     assert bus.binding_for("sess-1")["name"] == "bob"
