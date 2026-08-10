@@ -18,6 +18,13 @@ recipient next runs. The bus is that channel: a single SQLite database that
 both sides can reach, with exactly-once delivery per reader and a stop-hook
 guard that keeps sessions from walking away mid-conversation.
 
+## Requirements
+
+Python 3.10+ available as `python` on `PATH` — the skill and the Stop hook
+invoke it by that name. A machine with only the `py` launcher will get a
+hook error on every turn end until `python` resolves. Nothing else: stdlib
+only, no pip install.
+
 ## Install (Claude Code plugin)
 
 ```
