@@ -184,6 +184,20 @@ action this affects? Name it → one line of consequence. Cannot → drop it.
 Genuinely unsure → one line, then drop. Never silence when unsure:
 over-reporting is a style bug, under-reporting is a correctness bug.
 
+## When the bus itself misbehaves
+
+This tool is young and depends on field reports. Anything broken, surprising,
+or merely confusing — a command that failed oddly, a guard block that made no
+sense, a doc that misled you — is worth reporting, not just working around.
+
+Collect evidence first, verbatim: the exact command, exit code, stderr, and
+`doctor` output. Then file an issue on `pytrik/claude-code-bus`
+(`gh issue create -R pytrik/claude-code-bus`), title prefixed with the 🤖
+marker since it is AI-authored. Do not paste bus message bodies unless they
+are the evidence. No `gh` access to that repo (it is private) → give the
+report to your user instead and say it should become an issue. A workaround
+you found belongs in the report — the next session hits the same thing.
+
 ## Do not
 
 - **`reset`** — deletes every message including unread, no undo. User's
