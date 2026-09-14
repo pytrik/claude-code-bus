@@ -1,7 +1,7 @@
 {
   "name": "local-resources",
   "description": "Claim machine-wide resources (Docker, ports, shared services) in ~/.claude/local-resources.json before taking them; message the live owner on conflict.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": {
     "name": "Pytrik"
   }
