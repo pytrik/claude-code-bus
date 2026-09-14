@@ -36,8 +36,9 @@ A JSON array of claims. Missing file = no claims.
 - `resource` — the specific thing, named so another session recognises it:
   a container or stack name, a port number, "docker daemon", a database.
   Never a class ("docker") when you need one thing.
-- `owner` — your session name exactly as `ListAgents` shows it. That is how
-  another session checks whether you are still alive and how it reaches you.
+- `owner` — your session name exactly as the `ListAgents` header shows it
+  (`This session is <name> [ref]`). That is how another session checks
+  whether you are still alive and how it reaches you.
 - `project` — your working directory, forward slashes.
 - `since` — ISO 8601 UTC.
 - `note` — what you are doing with it and what will still be up when you
@@ -68,8 +69,10 @@ Not singleton — skip, no noise:
 ## Before taking. Not after.
 
 1. **Read the file.** Every time, even if you read it a minute ago.
-2. **Check each claim's owner against `ListAgents`.** An owner not listed is
-   a dead session; its claim is stale and the resource is free. Say so in
+2. **Check each claim's owner against `ListAgents`.** Only an `interactive`
+   row counts — those are the sessions on this machine, and they sort
+   first. An owner with no such row (absent, or listed as `offline`) is a
+   dead session; its claim is stale and the resource is free. Say so in
    one line to your user, remove the stale claim when you write yours.
 3. **Live owner holds it →** `SendMessage` them (the name is right there in
    the file): what you need, why, `NEEDS: release or ETA`. Then either wait
@@ -108,7 +111,7 @@ refusal, and the other side will escalate to the user.
 
 - Take silently because "it'll be quick". Quick is when collisions happen.
 - Forget the release. Worse than never claiming — it blocks until someone
-  notices your name is gone from `ListAgents`.
+  notices your name has no `interactive` row in `ListAgents`.
 - Claim a whole class ("docker") when you need one thing. Name the thing.
 - Promise an ETA you have not earned. You have read the task, not done it.
 - Edit or remove another live session's claim. Message them instead.

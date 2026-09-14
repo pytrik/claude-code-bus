@@ -11,10 +11,15 @@ protocol on top of that — what to send, what to wait for, what to relay.
 
 ## Mechanics
 
-- **Discover:** `ListAgents`. Each row leads with `name [ref]`; the name is
-  the address. The row also says idle/busy and how long ago it started.
-  "Busy" covers everything from thinking to a long shell command — do not
-  read more into it than busy/idle.
+- **Discover:** `ListAgents`. The header line names *you* (`This session
+  is <name> [ref]`); you are not a row. Each row leads with `name [ref]`;
+  the name is the address. Sessions on this machine are marked
+  `interactive` and sort first, with idle/busy and start time; the list
+  also carries Remote Control and cloud sessions, many `offline`, and is
+  truncated past ~100 rows. "Busy" covers everything from thinking to a
+  long shell command — do not read more into it than busy/idle. Names are
+  auto-generated from the working directory (`hippocampus03-f9`); the
+  user or a peer may tell you one, otherwise pick from the list.
 - **Send:** `SendMessage` with `to: <name>`. Append the ` [ref]` only when
   two rows share a name or an error asks you to disambiguate. A name not in
   `ListAgents` is a hard error (`No agent named '<name>' is reachable.`),
