@@ -1,7 +1,7 @@
 {
   "name": "claude-code-bus",
   "description": "Protocol for talking to other Claude Code sessions on this machine over the built-in SendMessage/ListAgents: etiquette, handoffs, what to relay to the user.",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": {
     "name": "Pytrik"
   }

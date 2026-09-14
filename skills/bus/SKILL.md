@@ -78,8 +78,8 @@ too — they are prose to another agent, not code.
 
 Compress reasoning; never compress evidence. Verbatim always: file paths,
 session names, exit codes, error text quoted exactly, the ask
-(`NEEDS: ...`), and the `FYI`/`DONE` marker. Write ASCII: `-`, `->`, plain
-quotes.
+(`NEEDS: ...`), and the `FYI`/`DONE` marker. The body is a tool argument:
+Unicode, backticks and tabs arrive intact, no shell quoting involved.
 
 ## What reaches your user
 
